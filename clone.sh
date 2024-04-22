@@ -15,7 +15,7 @@
     totalSizeFormatted=$(echo $totalSize | sed 's/^[^0-9]*//;s/[Bb]$//;s/\.[0-9]*$//')
 
     if [ "$totalSizeFormatted" = "1" ]; then
-         totalSizeFormatted= 931
+         totalSizeFormatted=931
     fi
 
     echo "                                                           "
