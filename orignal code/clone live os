@@ -1,0 +1,73 @@
+
+source_volumes=("/dev/disk3s3" "/dev/disk3s5" "/dev/disk4")
+destination_volumes=("/volumes/NewVolume1" "/volumes/NewVolume2" "/volumes/NewVolume3")
+
+source="/dev/disk3"
+destination="disk6"
+totalSizeFormatted=""
+
+# First step: format the disk as JHFS+
+sudo diskutil eraseDisk JHFS+ NewDrive $destination
+sleep 4
+
+convert_to_gb() {
+    local disk_identifier=$1
+    local disk_size_512_byte_units=$(diskutil info "$disk_identifier" | awk '/Disk Size/ {print $8}')
+    local disk_size_bytes=$((disk_size_512_byte_units * 512))
+    local disk_size_gb=$(echo "scale=2; $disk_size_bytes / 1073741824" | bc)
+    echo "$disk_size_gb"
+}
+
+# Get the size of the destination disk in GB
+DISk_SIZE=$(convert_to_gb $destination)
+echo "$destination Size: $DISk_SIZE GB"
+
+# Disk partitioning (as an example, using fixed sizes)
+diskutil splitPartition ${destination}s2 JHFS+ NewVolume1 23g JHFS+ NewVolume2 41g JHFS+ NewVolume3 52g
+
+echo "           "
+echo "                                                           "
+echo "created 2 volumes completed successfully."
+echo "                                                           "
+echo "                "
+
+echo "==================================================================="
+echo "This script was created by Eng. Ahmed Saifeldeen. For more information, visit"
+echo "http://ahmedsaif.netlify.app"
+echo "==================================================================="
+
+sleep 3
+
+# Restore Functions
+restore_volume() {
+    local source_volume="$1"
+    local destination_volume="$2"
+
+    echo "Restoring from source volume: $source_volume to destination volume: $destination_volume"
+    sudo asr restore --source "$source_volume" --target "$destination_volume" --noverify --erase --noprompt
+    sleep 2
+}
+
+# Loop through the volumes and perform the restoration
+for ((i=0; i<${#source_volumes[@]}; i++)); do
+    sudo diskutil mountDisk "$destination"
+    sudo diskutil mountDisk "$source"
+    echo "                                                           "
+    echo "███████████████████████████████████████████████████████████"
+    echo "                                                           "
+
+    restore_volume "${source_volumes[$i]}" "${destination_volumes[$i]}"
+done
+
+# Final Process Remounting
+echo "Remounting source volume: $source"
+ sudo diskutil mountDisk "$source"
+
+echo "Remounting destination volume: $destination"
+    sudo diskutil mountDisk "$destination"
+
+echo "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲"
+echo "                                                               "
+echo "Volume cloning and verification completed successfully."
+echo "                                                               "
+echo "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲"

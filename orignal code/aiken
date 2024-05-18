@@ -1,0 +1,94 @@
+wifi_name="Aiken1"
+wifi_password="00998877"
+
+
+wifi_status=$(networksetup -getairportpower en0 | awk '{print $4}')
+
+if [ "$wifi_status" = "On" ]; then
+    echo "==================================================================="
+   echo "this script created by Eng : Ahmed Saifeldeen for more information"
+    echo "visit http://ahmedsaif.netlify.app"
+    echo "==================================================================="
+
+    echo "                              "
+    echo "Wi-Fi is already turned on."
+else
+    echo "Wi-Fi is turned off. Turning it on..."
+    networksetup -setairportpower en0 on
+    if [ $? -eq 0 ]; then
+        echo "Wi-Fi turned on successfully."
+    else
+        echo "Failed to turn on Wi-Fi."
+        exit 1
+    fi
+fi
+
+sleep 3
+
+
+connected_wifi=$(networksetup -getairportnetwork en0 | awk -F': ' '{print $2}')
+
+if [ "$connected_wifi" = "$wifi_name" ]; then
+    echo "Already connected to $wifi_name."
+else
+    echo "                              "
+    echo "Not connected to $wifi_name. Connecting..."
+    echo "                              "
+
+    networksetup -setairportnetwork en0 "$wifi_name" "$wifi_password"
+    exit_status=$?
+    sleep 3
+    connected_wifi=$(networksetup -getairportnetwork en0 | awk '{print $4}')
+
+    if [ $exit_status -eq 0 ] && [ "$connected_wifi" = "$wifi_name" ]; then
+    echo "                              "
+        echo "Wi-Fi network set successfully."
+    echo "                              "
+    else
+        echo "Error setting Wi-Fi network. Exit status: $exit_status"
+        exit 1
+    fi
+fi
+
+
+
+
+IP_ADDRESS="192.168.2.1"
+DMG_URL="http://192.168.2.1/mca.dmg"
+
+ping -c 1 $IP_ADDRESS > /dev/null
+if [ $? -ne 0 ]; then
+    echo "Error: Unable to ping $IP_ADDRESS. Check your network connection."
+    exit 1
+fi
+
+hdiutil attach $DMG_URL
+if [ $? -ne 0 ]; then
+    echo "Error: Unable to mount the DMG from $DMG_URL."
+    exit 1
+fi
+
+MOUNT_POINT="/Volumes/mca"
+MCA_EXECUTABLE="$MOUNT_POINT/mca"
+if [ ! -d "$MOUNT_POINT" ] || [ ! -x "$MCA_EXECUTABLE" ]; then
+    echo "Error: Volume or mca executable not found."
+    exit 1
+fi
+
+
+    echo "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲"
+    echo "                                                           "
+        echo "Opening MACAUDITOR application..."
+    echo "                                                           "
+    echo "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲"
+    echo "                                                           "
+
+sudo "$MCA_EXECUTABLE" 
+
+    else
+    echo "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲"
+    echo "                                                           "
+    echo "Error: MCA application not Mounted on the desktop."
+     echo "                                                           "
+    echo "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲"
+    fi
